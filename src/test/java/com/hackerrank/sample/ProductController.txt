@@ -1,0 +1,39 @@
+package com.hackerrank.sample;
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import java.util.List;
+import java.util.stream.Collectors;
+
+@RestController
+public class ProductController {
+    private final ProductService productService;
+
+    public ProductController(ProductService productService) {
+        this.productService = productService;
+    }
+
+    @GetMapping("/filter/price/{initial_range}/{final_range}")
+    public ResponseEntity<?> filterByPriceRange(
+            @PathVariable("initial_range") Integer initialRange,
+            @PathVariable("final_range") Integer finalRange) {
+        
+        List<Product> filteredProducts = productService.filterByPriceRange(initialRange, finalRange);
+        
+        if (filteredProducts.isEmpty()) {
+            return ResponseEntity.status(400).build();
+        }
+        
+        return ResponseEntity.ok(filteredProducts);
+    }
+
+    @GetMapping("/sort/price")
+    public ResponseEntity<?> sortByPrice() {
+        List<Product> sortedProducts = productService.sortByPrice();
+        List<String> productNames = sortedProducts.stream()
+            .map(Product::getItem)
+            .collect(Collectors.toList());
+        
+        return ResponseEntity.ok(productNames);
+    }
+}
